@@ -49,11 +49,18 @@ shelves, and seem to be of the finest quality. A small sign is on the counter.
   | 2 | A bread         | 14   |
   | 3 | A waybread      | 72   |
 ```
+#### Additional (in-game) observations with Sonnet model
 
+gave the Sonnet some instructions to find practice yard, practice kick, and then look for ways to make money-
+- successfully found practice area and practiced kick
+- found blob and attempted to fight, but i told it not to
+- added instruction to use 'consider' command before fighting enemies
+- noticed navigation was basically blind, considering all directions at once without recording movements
+- Agent discovered town is peaceful/guarded; identified unarmed combat as a failure mode; hit the gold-vs-gear bootstrap problem.
     
-- **The Haiku agent had difficulty understanding its login mistakes.** 
+**The Haiku agent had difficulty understanding its login mistakes.** 
 
-It could not easily tell *why* a login failed and just kept reattempting (and faiing)
+It could not easily tell *why* a login failed and just kept reattempting (and failing)
 
 ### Cost Findings
 
