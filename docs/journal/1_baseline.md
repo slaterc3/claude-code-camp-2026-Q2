@@ -14,3 +14,10 @@
     - **run DSL** - a single `run()` - connects all the pieces together
     - **REPL** - loop shares the context so the agent remembers across turns; includes session commands: `/clear`, `/compact`, `/exit`
     - **context management** - tracks token usage against the model's window and drops oldest messages (compaction). 
+
+### Technical Uncertainty
+
+- can I build a working agentic loop without 3rd-party framework/SDK?
+- is coding-harness strictly necessary? In other words, is the loop simple enough to not require this?
+- how much of the cost is repeatedly resending the context vs. the actual reasoning?
+- can a cheap model like Haiku be enough to drive the loop accurately/reliably?
