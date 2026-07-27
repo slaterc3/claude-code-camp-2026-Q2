@@ -21,3 +21,11 @@
 - is coding-harness strictly necessary? In other words, is the loop simple enough to not require this?
 - how much of the cost is repeatedly resending the context vs. the actual reasoning?
 - can a cheap model like Haiku be enough to drive the loop accurately/reliably?
+
+### Technical Hypotheses
+
+##### **Note: These are presented as *null* hypotheses, not necessarily my expectation 
+
+- A 3rd-party framework/SDK is required for the loop to obtain the necessary accuracy reliability
+- Haiku is not a strong enough model for a functional loop (that can reliably and efficiently complete goal(s))
+- Writing the agent framework Python (vs following the Ruby code) will result in technical debt or unforeseen problems
