@@ -29,3 +29,27 @@
 - A 3rd-party framework/SDK is required for the loop to obtain the necessary accuracy reliability
 - Haiku is not a strong enough model for a functional loop (that can reliably and efficiently complete goal(s))
 - Writing the agent framework Python (vs following the Ruby code) will result in technical debt or unforeseen problems
+
+### Technical Observations
+
+- the loop works end-to-end: agent reasoned, called tools, adapted, and stopped with end_turn
+- tool errors fed back as tool_results
+- multi-turn memory via shared Context confirmed and token count carried across turns (~812 on turn 2 vs ~50 if it hadn't)
+- costs: multi-tool interactions ran ~$0.003 on Haiku; reasonable token accumulation on successive runs
+- a Python success: urllib handled TLS transparently
+- circuit breakers (max_iterations, max_turn_tokens) and auto-compaction (85% threshold, drop oldest ~40%) worked correctly
+- JSONL logging captures tokens/cost/model info on each event
+- tools live in the Registry, not Context
+
+### Technical Conclusions
+
+- 3rd party framework not required - loop is simple enough (150 lines of code)
+- REST is workable and allows for increased transparency
+- costs are more from recycled context than reasoning (logger makes this observation possible)
+- a perception layer using regex/NLP extraction might reduce the clutter of verbose context
+- Python is a viable means for creating the loop (so far...)
+
+### Key Takeaways
+
+- creating from scratch led to understanding *and* ownership
+- costs are mostly from context verbosity, not reasoning. This is a workable challenge
