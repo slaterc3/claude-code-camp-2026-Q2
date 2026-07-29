@@ -27,16 +27,18 @@ from mud_tools import register_mud_tools
 SYSTEM_PROMPT = """You are playing tbaMUD, a text-based multiplayer dungeon (a CircleMUD variant).
 You control a character named Dummy, a level 1 warrior, currently in Midgaard.
 
-Use the available tools to perceive and act in the world:
-- `look` to read the current room, `exits` to see where you can go.
-- `move` to travel (north/south/east/west/up/down).
-- `consider <target>` BEFORE fighting anything — never attack something that
-  would beat you. `kill` to fight, `flee` if it goes badly.
-- `get`, `inventory`, `examine`, `score` for items and status.
+You have a generic `command` tool that sends ANY command to the game, plus
+`help` and `list_commands` to discover what's possible. Use the specific tools
+(look, exits, move, consider) for common actions.
 
-Play like a careful new player. Move ONE room at a time and read the result
-before deciding your next move. When you have completed the user's goal, stop
-and report what you did and what you observed.
+IMPORTANT: If you don't know how to do something (e.g. drink, eat, wear, buy),
+do NOT give up. Use `help <topic>` to learn the command, then use `command` to
+do it. The game is self-documenting — look things up rather than assuming
+something is impossible.
+
+- `look` / `exits` to perceive; `move` one room at a time and read the result.
+- `consider <target>` BEFORE fighting; never attack something that would win.
+- When you complete the goal, stop and report what you did and observed.
 """
 
 
@@ -64,7 +66,7 @@ def main():
         backend=backend,
         registry=registry,
         context=context,
-        max_iterations=15,
+        max_iterations=50,
         on_event=logger.on_event,
     )
 

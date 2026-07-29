@@ -1,8 +1,7 @@
 """
-MUD tools — wraps a live MudClient as tools the agent can call.
-
-register_mud_tools(registry, mud) adds the core MUD actions to your existing
-ToolRegistry, each one calling through to the persistent MUD session.
+MUD tools — a generic command interface plus discovery, so the agent isn't
+limited to a hardcoded verb list. It can send any MUD command and look up how
+commands work from the game's own help system.
 """
 
 from __future__ import annotations
@@ -12,9 +11,55 @@ from mud_client import MudClient
 
 
 def register_mud_tools(registry: ToolRegistry, mud: MudClient) -> None:
-    """Register the core MUD action tools against a live, logged-in MudClient."""
 
-    @registry.tool("look", "Look at the current room to see its description, exits, items, and creatures.")
+    # ---- the generic escape hatch: send anything ----
+
+    @registry.tool(
+        "command",
+        "Send any raw command to the MUD and get the game's response. Use this "
+        "for any action not covered by a specific tool (e.g. 'drink from fountain', "
+        "'eat bread', 'rest', 'wear armor', 'buy sword'). MUD grammar is picky — "
+        "some actions need a preposition ('drink from fountain', 'get sword from bag'). "
+        "If a command fails, try variations before giving up.",
+    )
+    def command(text: str):
+        return mud.send(text)
+
+    # ---- discovery ----
+
+    @registry.tool(
+        "help",
+        "Look up a command or topic in the MUD's help system. Automatically tries "
+        "variations (e.g. 'drink' -> 'drinking') if the exact topic isn't found.",
+    )
+    def help(topic: str):
+        t = topic.strip()
+        resp = mud.send(f"help {t}")
+        if "no help on that word" in resp.lower():
+            variations = []
+            if not t.endswith("ing"):
+                base = t[:-1] if t.endswith("e") else t
+                variations.append(base + "ing")
+            if t.endswith("ing"):
+                variations.append(t[:-3])
+            variations.append(t + "s")
+            for v in variations:
+                alt = mud.send(f"help {v}")
+                if "no help on that word" not in alt.lower():
+                    return f"(no help for '{t}', showing '{v}')\n{alt}"
+            return f"No help for '{t}' or variations. Try the command directly."
+        return resp
+
+    @registry.tool(
+        "list_commands",
+        "List all valid commands available in the game.",
+    )
+    def list_commands():
+        return mud.send("commands")
+
+    # ---- convenience wrappers for high-frequency actions ----
+
+    @registry.tool("look", "Look at the current room: description, exits, items, creatures.")
     def look():
         return mud.send("look")
 
@@ -22,63 +67,32 @@ def register_mud_tools(registry: ToolRegistry, mud: MudClient) -> None:
     def exits():
         return mud.send("exits")
 
-    @registry.tool("move", "Move in a compass direction. One of: north, south, east, west, up, down.")
+    @registry.tool("move", "Move in a direction: north, south, east, west, up, or down.")
     def move(direction: str):
         d = direction.strip().lower()
-        # accept short forms too
         short = {"n": "north", "s": "south", "e": "east", "w": "west", "u": "up", "d": "down"}
         d = short.get(d, d)
         if d not in {"north", "south", "east", "west", "up", "down"}:
             return f"Invalid direction: {direction!r}. Use north/south/east/west/up/down."
         return mud.send(d)
 
-    @registry.tool("score", "Check your character's stats: level, HP, mana, movement, gold, experience.")
-    def score():
-        return mud.send("score")
-
-    @registry.tool("inventory", "See what you are carrying.")
-    def inventory():
-        return mud.send("inventory")
-
-    @registry.tool("consider", "Assess how tough a target creature is before fighting it.")
+    @registry.tool("consider", "Assess how tough a creature is BEFORE fighting it.")
     def consider(target: str):
         return mud.send(f"consider {target}")
 
-    @registry.tool("examine", "Examine an object or creature closely.")
-    def examine(target: str):
-        return mud.send(f"examine {target}")
-
-    @registry.tool("get", "Pick up an item. Use 'get all corpse' to loot a corpse.")
-    def get(item: str):
-        return mud.send(f"get {item}")
-
-    @registry.tool("kill", "Attack a creature to start combat.")
-    def kill(target: str):
-        return mud.send(f"kill {target}")
-
-    @registry.tool("flee", "Attempt to flee from combat in a random direction.")
-    def flee():
-        return mud.send("flee")
-
-    @registry.tool("say", "Say something out loud in the current room.")
-    def say(message: str):
-        return mud.send(f"say {message}")
-
 
 if __name__ == "__main__":
-    # Quick check: log in, register tools, dispatch a couple directly.
     mud = MudClient()
     print("logging in...")
     mud.login("dummy", "helloworld")
-
     reg = ToolRegistry()
     register_mud_tools(reg, mud)
-    print("registered tools:", reg.names())
+    print("registered:", reg.names())
 
-    print("\n--- look ---")
-    print(reg.dispatch("look"))
-    print("\n--- exits ---")
-    print(reg.dispatch("exits"))
+    print("\n--- command: south ---")
+    print(reg.dispatch("command", {"text": "south"}))
+    print("\n--- command: drink from fountain ---")
+    print(reg.dispatch("command", {"text": "drink from fountain"}))
 
     mud.close()
     print("\n(closed)")
