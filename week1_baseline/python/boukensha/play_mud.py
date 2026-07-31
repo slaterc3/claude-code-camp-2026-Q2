@@ -23,6 +23,7 @@ from models import Models
 from mud_client import MudClient
 from mud_tools import register_mud_tools
 
+from observability import Observability
 
 SYSTEM_PROMPT = """You are playing tbaMUD, a text-based multiplayer dungeon (a CircleMUD variant).
 You control a character named Dummy, a level 1 warrior, currently in Midgaard.
@@ -62,24 +63,42 @@ def main():
         context_window=Models.context_window(model),
     )
 
+
+
+    obs = Observability(cfg)
+
+    def fan_out(name, data):
+        logger.on_event(name, data)
+        obs.on_event(name, data)    
+
     agent = Agent(
         backend=backend,
         registry=registry,
         context=context,
-        max_iterations=50,
-        on_event=logger.on_event,
+        max_iterations=15,
+        on_event=fan_out,          # both logger AND observability get every event
     )
 
+    # agent = Agent(
+    #     backend=backend,
+    #     registry=registry,
+    #     context=context,
+    #     max_iterations=50,
+    #     on_event=logger.on_event,
+    # )
+    
     print(f">>> GOAL: {task}\n")
-    try:
-        reply = agent.run_turn(task)
-        print("\n=== AGENT REPORT ===")
-        print(reply)
-    except LoopError as e:
-        print(f"\n[loop error] {e}")
-    finally:
-        mud.close()
-        print("\n(disconnected)")
+    with obs.task(task):           # top-level span for the whole task
+        try:
+            reply = agent.run_turn(task)
+            print("\n=== AGENT REPORT ===")
+            print(reply)
+        except LoopError as e:
+            print(f"\n[loop error] {e}")
+        finally:
+            obs.close()
+            mud.close()
+            print("\n(disconnected)")
 
 
 if __name__ == "__main__":
