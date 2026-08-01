@@ -75,7 +75,7 @@ def main():
         backend=backend,
         registry=registry,
         context=context,
-        max_iterations=75,
+        max_iterations=100,
         on_event=fan_out,          # both logger AND observability get every event
     )
 
