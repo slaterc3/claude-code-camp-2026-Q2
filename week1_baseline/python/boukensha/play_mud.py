@@ -75,7 +75,7 @@ def main():
         backend=backend,
         registry=registry,
         context=context,
-        max_iterations=15,
+        max_iterations=75,
         on_event=fan_out,          # both logger AND observability get every event
     )
 
@@ -86,7 +86,7 @@ def main():
     #     max_iterations=50,
     #     on_event=logger.on_event,
     # )
-    
+
     print(f">>> GOAL: {task}\n")
     with obs.task(task):           # top-level span for the whole task
         try:

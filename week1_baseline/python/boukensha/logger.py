@@ -114,8 +114,9 @@ class Logger:
             line = f"  → {data.get('name')}({data.get('input', {})})"
         elif name == "tool_result":
             out = str(data.get("output", ""))
-            if len(out) > 80:
-                out = out[:77] + "..."
+            # if len(out) > 80:
+            #     out = out[:77] + "..."
+
             mark = "✗" if data.get("error") else "✓"
             line = f"  {mark} {out}"
         elif name == "compaction":

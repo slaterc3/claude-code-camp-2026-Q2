@@ -35,6 +35,7 @@ class Agent:
         max_turn_tokens: int | None = None,
         compaction_threshold: float = 0.85,
         on_event=None,
+        wrapup_margin: int = 2,  
     ):
         self.backend = backend
         self.registry = registry
@@ -44,6 +45,7 @@ class Agent:
         self.compaction_threshold = compaction_threshold
         # on_event(name, data) — optional hook so the logger/TUI can observe.
         self.on_event = on_event or (lambda name, data: None)
+        self.wrapup_margin = wrapup_margin
 
     def run_turn(self, user_input: str) -> str:
         """Run one user turn to completion (through any number of tool calls)."""
@@ -59,6 +61,15 @@ class Agent:
         for iteration in range(1, self.max_iterations + 1):
             self.on_event("iteration", {"n": iteration})
 
+            remaining = self.max_iterations - iteration
+            if 0 < remaining <= self.wrapup_margin:
+                self.context.add(Message.user(
+                    f"[SYSTEM] You have {remaining} iteration(s) left before you "
+                    f"must stop. Finish your current objective if you can, then "
+                    f"report your status and stop. Your progress and equipment are "
+                    f"saved automatically when the session ends."
+                ))
+                
             # 1. Call the API.
             try:
                 result = self.backend.call(
@@ -67,6 +78,8 @@ class Agent:
                 )
             except ApiError as e:
                 raise LoopError(f"API call failed on iteration {iteration}: {e}") from e
+            
+
 
             # Token accounting (step 12 groundwork).
             usage = result["usage"]
