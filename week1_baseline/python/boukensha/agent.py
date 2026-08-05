@@ -34,6 +34,7 @@ class Agent:
         max_iterations: int = 10,
         max_turn_tokens: int | None = None,
         compaction_threshold: float = 0.85,
+        summarizer=None,
         on_event=None,
         wrapup_margin: int = 2,  
     ):
@@ -43,23 +44,26 @@ class Agent:
         self.max_iterations = max_iterations
         self.max_turn_tokens = max_turn_tokens
         self.compaction_threshold = compaction_threshold
+        self.summarizer = summarizer
         # on_event(name, data) — optional hook so the logger/TUI can observe.
         self.on_event = on_event or (lambda name, data: None)
         self.wrapup_margin = wrapup_margin
 
     def run_turn(self, user_input: str) -> str:
         """Run one user turn to completion (through any number of tool calls)."""
-        # Auto-compaction: if the last turn pushed usage past the threshold,
-        # trim the oldest messages BEFORE adding new input and calling the API,
-        # so we don't overflow the model's context window.
-        self._maybe_compact()
-
         self.context.add(Message.user(user_input))
 
         turn_tokens = 0
 
         for iteration in range(1, self.max_iterations + 1):
             self.on_event("iteration", {"n": iteration})
+
+            # Bound context growth: summarize old history if it's gotten large.
+            # Checked each iteration so it fires as context grows during the turn.
+            if self.summarizer and self.summarizer.should_summarize(self.context):
+                self.summarizer.summarize(self.context)
+            else:
+                self._maybe_compact()
 
             remaining = self.max_iterations - iteration
             if 0 < remaining <= self.wrapup_margin:
@@ -69,7 +73,7 @@ class Agent:
                     f"report your status and stop. Your progress and equipment are "
                     f"saved automatically when the session ends."
                 ))
-                
+
             # 1. Call the API.
             try:
                 result = self.backend.call(
@@ -78,10 +82,8 @@ class Agent:
                 )
             except ApiError as e:
                 raise LoopError(f"API call failed on iteration {iteration}: {e}") from e
-            
 
-
-            # Token accounting (step 12 groundwork).
+            # Token accounting.
             usage = result["usage"]
             self.context.current_tokens = (
                 usage["input_tokens"] + usage["output_tokens"]
@@ -94,7 +96,7 @@ class Agent:
                 "cost": self.backend.estimate_cost(usage),
             })
 
-            # 2. Record the assistant's message in the conversation.
+            # 2. Record the assistant's message.
             self.context.add(Message.assistant(result["content"]))
 
             # 3. Branch on stop_reason.
@@ -102,22 +104,17 @@ class Agent:
 
             if stop == "tool_use":
                 tool_results = self._dispatch_tools(result["content"])
-                # Feed the tool results back in as the next user message.
                 self.context.add(Message.user(tool_results))
-                # ...and loop again so the model can react to them.
             elif stop in ("end_turn", "stop_sequence", "max_tokens"):
-                # Model is done — return its text.
                 return self._extract_text(result["content"])
             else:
                 raise LoopError(f"unexpected stop_reason: {stop!r}")
 
-            # Second circuit breaker: token budget for the turn (step 12).
             if self.max_turn_tokens and turn_tokens >= self.max_turn_tokens:
                 raise LoopError(
                     f"turn exceeded max_turn_tokens ({turn_tokens} >= {self.max_turn_tokens})"
                 )
 
-        # Fell out of the loop = hit the iteration cap without finishing.
         raise LoopError(f"hit max_iterations ({self.max_iterations}) without end_turn")
 
     # ---- internals ----

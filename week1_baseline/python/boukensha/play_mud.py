@@ -22,6 +22,7 @@ from logger import Logger
 from models import Models
 from mud_client import MudClient
 from mud_tools import register_mud_tools
+from summarizer import Summarizer
 
 from observability import Observability
 
@@ -40,6 +41,14 @@ something is impossible.
 - `look` / `exits` to perceive; `move` one room at a time and read the result.
 - `consider <target>` BEFORE fighting; never attack something that would win.
 - When you complete the goal, stop and report what you did and observed.
+
+Movement costs movement points (V). If you see 'too exhausted', rest or sleep and WAIT several turns (rest multiple times without standing) until your movement points recover before trying to move again.
+
+DANGER — DEATH TRAPS:
+Some rooms are instant-death traps. If a room description mentions an "Abyss",
+falling, "descending", "Good-bye cruel world", or shows "[ Exits: None! ]", DO NOT
+proceed and do not move further in. If you somehow enter one, you are likely stuck.
+Never move in a direction if the destination sounds lethal.
 """
 
 
@@ -63,6 +72,7 @@ def main():
         context_window=Models.context_window(model),
     )
 
+    
 
 
     obs = Observability(cfg)
@@ -71,10 +81,13 @@ def main():
         logger.on_event(name, data)
         obs.on_event(name, data)    
 
+    summarizer = Summarizer(backend, keep_recent=4, trigger_ratio=0.02, on_event=fan_out)
+
     agent = Agent(
         backend=backend,
         registry=registry,
         context=context,
+        summarizer=summarizer,
         max_iterations=100,
         on_event=fan_out,          # both logger AND observability get every event
     )
