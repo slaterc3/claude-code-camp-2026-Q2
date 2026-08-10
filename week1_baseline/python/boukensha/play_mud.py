@@ -49,6 +49,16 @@ Some rooms are instant-death traps. If a room description mentions an "Abyss",
 falling, "descending", "Good-bye cruel world", or shows "[ Exits: None! ]", DO NOT
 proceed and do not move further in. If you somehow enter one, you are likely stuck.
 Never move in a direction if the destination sounds lethal.
+
+OPPORTUNISTIC LOOTING (do this during ANY task, without being told):
+As you move through rooms, grab useful items you come across if you have space:
+- ALWAYS pick up gold/coins ('get coins' or 'get all coins') — they stack and are always useful.
+- Pick up weapons and armor that are upgrades, ESPECIALLY items with a "glowing aura"
+  (these are magical/valuable). Wield better weapons ('wield <item>') and wear better
+  armor ('wear <item>').
+- Skip junk, duplicates you already have, and stop if you see "you can't carry that many
+  items" (inventory is full).
+- Grab-and-go: don't let looting derail your main objective, but don't walk past free value.
 """
 
 
