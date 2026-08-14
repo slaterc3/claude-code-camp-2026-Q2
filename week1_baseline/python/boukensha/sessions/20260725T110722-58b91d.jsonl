@@ -1,0 +1,12 @@
+{"ts": "2026-07-25T15:07:29.402207+00:00", "session_id": "20260725T110722-58b91d", "event": "iteration", "n": 1}
+{"ts": "2026-07-25T15:07:30.583907+00:00", "session_id": "20260725T110722-58b91d", "event": "response", "stop_reason": "tool_use", "usage": {"input_tokens": 614, "output_tokens": 51}, "model": "claude-haiku-4-5-20251001", "cost": 0.000869}
+{"ts": "2026-07-25T15:07:30.584444+00:00", "session_id": "20260725T110722-58b91d", "event": "tool_call", "name": "look", "input": {}}
+{"ts": "2026-07-25T15:07:30.584768+00:00", "session_id": "20260725T110722-58b91d", "event": "tool_result", "name": "look", "output": "The Bakery. Exits: s. You see: danish, a loaf of bread.", "error": false}
+{"ts": "2026-07-25T15:07:30.584901+00:00", "session_id": "20260725T110722-58b91d", "event": "iteration", "n": 2}
+{"ts": "2026-07-25T15:07:31.555354+00:00", "session_id": "20260725T110722-58b91d", "event": "response", "stop_reason": "tool_use", "usage": {"input_tokens": 697, "output_tokens": 73}, "model": "claude-haiku-4-5-20251001", "cost": 0.001062}
+{"ts": "2026-07-25T15:07:31.555755+00:00", "session_id": "20260725T110722-58b91d", "event": "tool_call", "name": "take", "input": {"item": "danish"}}
+{"ts": "2026-07-25T15:07:31.556109+00:00", "session_id": "20260725T110722-58b91d", "event": "tool_result", "name": "take", "output": "You take danish.", "error": false}
+{"ts": "2026-07-25T15:07:31.556429+00:00", "session_id": "20260725T110722-58b91d", "event": "iteration", "n": 3}
+{"ts": "2026-07-25T15:07:32.744521+00:00", "session_id": "20260725T110722-58b91d", "event": "response", "stop_reason": "end_turn", "usage": {"input_tokens": 785, "output_tokens": 23}, "model": "claude-haiku-4-5-20251001", "cost": 0.0009}
+{"ts": "2026-07-25T15:07:44.867137+00:00", "session_id": "20260725T110722-58b91d", "event": "iteration", "n": 1}
+{"ts": "2026-07-25T15:07:46.421395+00:00", "session_id": "20260725T110722-58b91d", "event": "response", "stop_reason": "end_turn", "usage": {"input_tokens": 812, "output_tokens": 19}, "model": "claude-haiku-4-5-20251001", "cost": 0.000907}

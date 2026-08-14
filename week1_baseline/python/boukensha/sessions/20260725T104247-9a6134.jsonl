@@ -1,0 +1,10 @@
+{"ts": "2026-07-25T14:42:47.811270+00:00", "session_id": "20260725T104247-9a6134", "event": "iteration", "n": 1}
+{"ts": "2026-07-25T14:42:48.643945+00:00", "session_id": "20260725T104247-9a6134", "event": "response", "stop_reason": "tool_use", "usage": {"input_tokens": 638, "output_tokens": 35}, "model": "claude-haiku-4-5-20251001", "cost": 0.0008129999999999999}
+{"ts": "2026-07-25T14:42:48.644337+00:00", "session_id": "20260725T104247-9a6134", "event": "tool_call", "name": "look", "input": {}}
+{"ts": "2026-07-25T14:42:48.644697+00:00", "session_id": "20260725T104247-9a6134", "event": "tool_result", "name": "look", "output": "The Bakery. Exits: s. You see: danish.", "error": false}
+{"ts": "2026-07-25T14:42:48.644813+00:00", "session_id": "20260725T104247-9a6134", "event": "iteration", "n": 2}
+{"ts": "2026-07-25T14:42:49.879066+00:00", "session_id": "20260725T104247-9a6134", "event": "response", "stop_reason": "tool_use", "usage": {"input_tokens": 699, "output_tokens": 59}, "model": "claude-haiku-4-5-20251001", "cost": 0.000994}
+{"ts": "2026-07-25T14:42:49.879663+00:00", "session_id": "20260725T104247-9a6134", "event": "tool_call", "name": "take", "input": {"item": "danish"}}
+{"ts": "2026-07-25T14:42:49.880002+00:00", "session_id": "20260725T104247-9a6134", "event": "tool_result", "name": "take", "output": "You take danish.", "error": false}
+{"ts": "2026-07-25T14:42:49.880212+00:00", "session_id": "20260725T104247-9a6134", "event": "iteration", "n": 3}
+{"ts": "2026-07-25T14:42:50.890458+00:00", "session_id": "20260725T104247-9a6134", "event": "response", "stop_reason": "end_turn", "usage": {"input_tokens": 773, "output_tokens": 38}, "model": "claude-haiku-4-5-20251001", "cost": 0.0009630000000000001}
